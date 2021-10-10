@@ -18,57 +18,35 @@ use PHPUnit\Framework\TestCase;
 
 class ChildrenCategoriesProviderTest extends TestCase
 {
-    /**
-     * @var MockObject
-     */
+    /** @var MockObject */
     protected $category;
 
-    /**
-     * @var MockObject
-     */
+    /** @var MockObject */
     protected $select;
 
-    /**
-     * @var MockObject
-     */
+    /** @var MockObject */
     protected $connection;
 
-    /**
-     * @var ChildrenCategoriesProvider
-     */
+    /** @var ChildrenCategoriesProvider */
     protected $childrenCategoriesProvider;
 
-    /**
-     * @inheritDoc
-     */
     protected function setUp(): void
     {
         $this->category = $this->getMockBuilder(Category::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(
-                [
-                    'getPath',
-                    'getResourceCollection',
-                    'getResource',
-                    'getLevel',
-                    '__wakeup',
-                    'isObjectNew'
-                ]
-            )
+            ->setMethods(['getPath', 'getResourceCollection', 'getResource', 'getLevel', '__wakeup', 'isObjectNew'])
             ->getMock();
-        $categoryCollection = $this->getMockBuilder(AbstractCollection::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['addAttributeToSelect'])
-            ->addMethods(['addIdFilter'])
-            ->getMock();
+        $categoryCollection = $this->getMockBuilder(
+            AbstractCollection::class
+        )->disableOriginalConstructor()
+            ->setMethods(['addAttributeToSelect', 'addIdFilter'])->getMock();
         $this->category->expects($this->any())->method('getPath')->willReturn('category-path');
         $this->category->expects($this->any())->method('getResourceCollection')->willReturn($categoryCollection);
         $categoryCollection->expects($this->any())->method('addAttributeToSelect')->willReturnSelf();
         $categoryCollection->expects($this->any())->method('addIdFilter')->with(['id'])->willReturnSelf();
         $this->select = $this->getMockBuilder(Select::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['where', 'deleteFromSelect', 'from'])
-            ->getMock();
+            ->setMethods(['from', 'where', 'deleteFromSelect'])->getMock();
         $this->connection = $this->getMockForAbstractClass(AdapterInterface::class);
         $categoryResource = $this->getMockBuilder(\Magento\Catalog\Model\ResourceModel\Category::class)
             ->disableOriginalConstructor()
@@ -84,10 +62,7 @@ class ChildrenCategoriesProviderTest extends TestCase
         );
     }
 
-    /**
-    * @return void
-    */
-    public function testGetChildrenRecursive(): void
+    public function testGetChildrenRecursive()
     {
         $bind = ['c_path' => 'category-path/%'];
         $this->category->expects($this->once())->method('isObjectNew')->willReturn(false);
@@ -96,25 +71,17 @@ class ChildrenCategoriesProviderTest extends TestCase
         $this->childrenCategoriesProvider->getChildren($this->category, true);
     }
 
-    /**
-    * @return void
-    */
-    public function testGetChildrenForNewCategory(): void
+    public function testGetChildrenForNewCategory()
     {
         $this->category->expects($this->once())->method('isObjectNew')->willReturn(true);
         $this->assertEquals([], $this->childrenCategoriesProvider->getChildren($this->category));
     }
 
-    /**
-    * @return void
-    */
-    public function testGetChildren(): void
+    public function testGetChildren()
     {
         $categoryLevel = 3;
-        $this->select
-            ->method('where')
-            ->withConsecutive(['path LIKE :c_path'], ['level <= :c_level'])
-            ->willReturnOnConsecutiveCalls($this->select, $this->select);
+        $this->select->expects($this->at(1))->method('where')->with('path LIKE :c_path')->willReturnSelf();
+        $this->select->expects($this->at(2))->method('where')->with('level <= :c_level')->willReturnSelf();
         $this->category->expects($this->once())->method('isObjectNew')->willReturn(false);
         $this->category->expects($this->once())->method('getLevel')->willReturn($categoryLevel);
         $bind = ['c_path' => 'category-path/%', 'c_level' => $categoryLevel + 1];
