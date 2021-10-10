@@ -21,7 +21,9 @@
             <magentoCLI command="config:set catalog/seo/category_url_suffix ''" stepKey="setCategoryUrlSuffix"/>
             <magentoCLI command="config:set catalog/seo/generate_category_product_rewrites 0"
                         stepKey="setCategoryProductRewrites"/>
-            <comment userInput="Adding the comment to replace CliCacheFlushActionGroup action group ('cache:flush' command) for preserving Backward Compatibility" stepKey="flushCacheBefore"/>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="flushCacheBefore">
+                <argument name="tags" value=""/>
+            </actionGroup>
             <createData entity="_defaultCategory" stepKey="createCategory"/>
         </before>
         <after>
@@ -30,10 +32,12 @@
                         stepKey="restoreCategoryUrlSuffix"/>
             <magentoCLI command="config:set catalog/seo/generate_category_product_rewrites 1"
                         stepKey="restoreCategoryProductRewrites"/>
-            <comment userInput="Adding the comment to replace CliCacheFlushActionGroup action group ('cache:flush' command) for preserving Backward Compatibility" stepKey="flushCacheAfter"/>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="flushCacheAfter">
+                <argument name="tags" value=""/>
+            </actionGroup>
         </after>
 
-        <amOnPage url="/$$createCategory.custom_attributes[url_key]$$" stepKey="onCategoryPage"/>
+        <amOnPage url="/$$createCategory.name$$" stepKey="onCategoryPage"/>
         <waitForPageLoad stepKey="waitForPageLoad"/>
         <seeInTitle userInput="$$createCategory.name$$" stepKey="assertCategoryNameInTitle"/>
     </test>

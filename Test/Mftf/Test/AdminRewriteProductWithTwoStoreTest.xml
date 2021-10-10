@@ -17,7 +17,10 @@
 
         <before>
             <magentoCLI command="config:set {{EnableCategoriesPathProductUrls.path}} {{EnableCategoriesPathProductUrls.value}}" stepKey="enableUseCategoriesPath"/>
-            <comment userInput="Adding the comment to replace CliCacheFlushActionGroup action group ('cache:flush' command) for preserving Backward Compatibility" stepKey="flushCache"/>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="flushCache">
+                <argument name="tags" value=""/>
+            </actionGroup>
+
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
             <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="createStoreView" />
             <createData entity="_defaultCategoryDifferentUrlStore" stepKey="defaultCategory"/>
@@ -35,7 +38,9 @@
             <deleteData createDataKey="simpleProduct" stepKey="deleteSimpleProduct"/>
             <deleteData createDataKey="defaultCategory" stepKey="deleteNewRootCategory"/>
             <magentoCLI command="config:set {{DisableCategoriesPathProductUrls.path}} {{DisableCategoriesPathProductUrls.value}}" stepKey="disableUseCategoriesPath"/>
-            <comment userInput="Adding the comment to replace CliCacheFlushActionGroup action group ('cache:flush' command) for preserving Backward Compatibility" stepKey="flushCache"/>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="flushCache">
+                <argument name="tags" value=""/>
+            </actionGroup>
         </after>
 
         <actionGroup ref="NavigateToCreatedCategoryActionGroup" stepKey="navigateToCreatedDefaultCategory">
